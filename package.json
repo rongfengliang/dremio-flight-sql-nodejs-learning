@@ -1,0 +1,16 @@
+{
+  "name": "node-arrow-flight-sql",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@lakehouse-rs/flight-sql-client": "^0.0.10",
+    "apache-arrow": "^15.0.2"
+  },
+  "scripts": {
+    "build": "ncc build app.js -o dist"
+  },
+  "devDependencies": {
+    "@vercel/ncc": "^0.38.1"
+  }
+}

@@ -1,34 +1,34 @@
-const { createFlightSqlClient } = require('@lakehouse-rs/flight-sql-client');
-const { tableFromIPC } = require('apache-arrow');
+const { createFlightSqlClient } = require("@lakehouse-rs/flight-sql-client");
+const { tableFromIPC } = require("apache-arrow");
 
-BigInt.prototype.toJSON = function() { return this.toString() }
+BigInt.prototype.toJSON = function () {
+  return this.toString();
+};
 
 const options = {
-  username: 'admin',
-  password: 'admin123',
+  username: "admin",
+  password: "admin123",
   tls: false,
-  host: 'localhost',
+  host: "localhost",
   port: 32010,
   headers: [],
 };
 
-async function start(){
+async function start(options,sql) {
   const client = await createFlightSqlClient(options);
-
-  const buffer = await client.query('select * from sys.options');
+  const buffer = await client.query(sql);
   const table = tableFromIPC(buffer);
-  
-  table.toArray().forEach((row) => {
-    console.log(JSON.stringify(row));
-  })
-  
-  const bufferv2 = await client.getTables({ includeSchema: false });
-  const tablev2  = tableFromIPC(bufferv2);
-  
-  tablev2.toArray().forEach((row) => {
-    console.log(JSON.stringify(row));
-  })  
+  let res = {
+    rowCount: table.numRows,
+    schema: table.schema.fields.map((f) => {
+      return { name: f.name, type: { name: f.metadata.get("ARROW:FLIGHT:SQL:TYPE_NAME") } };
+    }),
+    rows: table.toArray(),
+  };
+  return  res
 }
 
-start();
-
+(async function (){
+  let result = await start(options,"select * from sys.options");
+  console.log(result)
+})() 
